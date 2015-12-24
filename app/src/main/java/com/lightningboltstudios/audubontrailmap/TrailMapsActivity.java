@@ -24,6 +24,7 @@ public class TrailMapsActivity extends FragmentActivity implements OnMapReadyCal
     final float DEFAULT_ZOOM = (float) 15.25;
     boolean firstMapRegionCheck = true;
     VisibleRegion lastVisibleRegion;
+    Object cameraUpdateLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +58,17 @@ public class TrailMapsActivity extends FragmentActivity implements OnMapReadyCal
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition position) {
+                synchronized(cameraUpdateLock) {
                 VisibleRegion vr = mMap.getProjection().getVisibleRegion();
-                double left = vr.latLngBounds.southwest.longitude;
-                double top = vr.latLngBounds.northeast.latitude;
-                double right = vr.latLngBounds.northeast.longitude;
-                double bottom = vr.latLngBounds.southwest.latitude;
-
-                zoomFix(position);
-                checkXAxis(position, left, top, right, bottom);
-                checkYAxis(position, left, top, right, bottom);
+                    double left = vr.latLngBounds.southwest.longitude;
+                    double top = vr.latLngBounds.northeast.latitude;
+                    double right = vr.latLngBounds.northeast.longitude;
+                    double bottom = vr.latLngBounds.southwest.latitude;
+    
+                    zoomFix(position);
+                    checkXAxis(position, left, top, right, bottom);
+                    checkYAxis(position, left, top, right, bottom);
+                }
             }
         });
     }
